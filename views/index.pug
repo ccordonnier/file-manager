@@ -1,0 +1,18 @@
+html 
+    head
+        title= title
+    body 
+        h1= "bonjour"
+        h2= message
+        form(action="/files", method="post")
+            input#nom(type="text", name="nom_du_fichier")
+            input#file(type="file", name="fichier")  
+            input(type="submit", value="Envoyer")
+        #drive
+        if drive == []
+            p="Votre drive est vide"
+        else 
+            each file in drive 
+                div 
+                    p=file
+            
