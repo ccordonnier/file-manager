@@ -1,18 +1,61 @@
 html 
     head
         title= title
-    body 
-        h1= "bonjour"
-        h2= message
-        form(action="/files", method="post")
-            input#nom(type="text", name="nom_du_fichier")
-            input#file(type="file", name="fichier")  
-            input(type="submit", value="Envoyer")
-        #drive
-        if drive == []
-            p="Votre drive est vide"
-        else 
-            each file in drive 
-                div 
-                    p=file
-            
+        link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp", crossorigin="anonymous")
+        script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js", integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N", crossorigin="anonymous")
+    body(style="margin-left:20px;margin-right:20px;") 
+        h1= message
+        form(action="/", method="post", enctype="multipart/form-data" style="width:40%")
+            div(class="mb-3")
+                label(for="nom", class="form-label")="Nom du fichier"
+                input#nom(type="text", class="form-control",name="filename")
+            div(class="mb-3")
+                label(for="formFile", class="form-label")="Ajouter un fichier"
+                input#formFile(class="form-control", type="file" name="file")
+            input(type="submit" class="btn btn-primary mb-3", value="Envoyer")
+        #drive(style="display: flex;flex-wrap: wrap;justify-content: flex-start")
+            if !files
+                p="Votre drive est vide"
+            else 
+                each file in files 
+                    div(class="card" style="margin-bottom:20px;margin-right:20px;height:30vh;width:calc( 20vw - 34px );")
+                        div(class="card-header" style="height:20%;display:flex;align-items: center;justify-content: space-between;")
+                            if(file.info.fileType=="image")
+                                svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16")
+                                    path(d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z")
+                                    path(d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5h13z")
+                            else if file.info.fileType == "audio"
+                                svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-music" viewBox="0 0 16 16")
+                                    path(d="M11 6.64a1 1 0 0 0-1.243-.97l-1 .25A1 1 0 0 0 8 6.89v4.306A2.572 2.572 0 0 0 7 11c-.5 0-.974.134-1.338.377-.36.24-.662.628-.662 1.123s.301.883.662 1.123c.364.243.839.377 1.338.377.5 0 .974-.134 1.338-.377.36-.24.662-.628.662-1.123V8.89l2-.5V6.64z")
+                                    path(d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z")
+                            h5(class="card-title" style="margin-bottom:0;display:flex;align-items:center;")=file.title
+                                button(type="button" class="btn  btn-light" data-bs-toggle="dropdown" aria-expanded="false" style="float:right;")
+                                    svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16")
+                                        path(d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z")
+                                span(class="visually-hidden")="Toggle Dropdown"
+                                ul(class="dropdown-menu")
+                                    li
+                                        a(class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalRename" onclick="document.getElementById('renameFileId').value='"+file.id+"'")="Renommer"
+                                    li
+                                        a(class="dropdown-item" href="#")="Supprimer"
+                        div(class="card-body" style="display: flex;align-items: center;justify-content: center; height:80%;width:100%")
+                            if file.info.fileType == "image"
+                                img(src=file.info.path, style="max-width: 100%;max-height: 100%;")
+                            else if file.info.fileType == "audio"
+                                audio(controls=true, src="/"+file.info.path)
+                                    a(href=file.info.path)="télécharger"
+        div(class="modal fade" id="modalRename" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true")
+            div(class="modal-dialog modal-dialog-centered col-md-3" style="width:25%;")
+                div(class="modal-content")
+                    div(class="modal-header")
+                        h1(class="modal-title fs-5" id="exampleModalLabel")="Rennomer le fichier"
+                        button(type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close")
+                    div(class="modal-body")
+                        form(action="/", method="post")
+                            div
+                                input(type="text" class="form-control" id="recipient-name" name="filename")
+                                input(type="hidden" name="action" value="rename")
+                                input(type="hidden" name="fileId" id="renameFileId" value="")
+                    div(class="modal-footer")
+                        button(type="button" class="btn btn-secondary" data-bs-dismiss="modal")="Annuler"
+                        input(type="submit" class="btn btn-primary" value="Valider")
